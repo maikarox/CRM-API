@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 import { RequestHandler } from 'express';
 
-import { verifyToken } from './helpers/decodeToken';
+import { verifyToken } from '../helpers/decodeToken';
 
 export const isAuthorized: RequestHandler = async (req, res, next) => {
   const { authorization } = req.headers;

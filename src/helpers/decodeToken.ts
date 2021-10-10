@@ -1,6 +1,6 @@
 import { verify } from 'jsonwebtoken';
 
-import { configEnv } from '../../config/env';
+import { configEnv } from '../config/env';
 
 export interface JwtToken {
   userId: string;
