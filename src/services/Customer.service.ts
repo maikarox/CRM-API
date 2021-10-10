@@ -97,7 +97,6 @@ export async function updateCustomerProfile(
   if (profileImage) {
     try {
       image = base64ToBinary(String(profileImage));
-
     } catch (err) {
       throw new Error('Error converting image to binary.');
     }
@@ -106,24 +105,28 @@ export async function updateCustomerProfile(
   const actionUserId = new Types.ObjectId(actionUser);
   const _id = customerId as unknown as Schema.Types.ObjectId;
 
-  const updatedUser = await CustomerModel.findOneAndUpdate({ _id }, {
-    ...customerData,
-    updatedAt: new Date(),
-    updatedBy: actionUserId,
-    profileImage: image,
-  }).lean();
+  const updatedUser = await CustomerModel.findOneAndUpdate(
+    { _id },
+    {
+      ...customerData,
+      updatedAt: new Date(),
+      updatedBy: actionUserId,
+      profileImage: image,
+    },
+    { new: true },
+  ).lean();
 
   const { profileImage: storedImage } = updatedUser;
-  
+
   let storedProfileImage: string;
-  if(!profileImage && storedImage){
+  if (!profileImage && storedImage) {
     try {
       storedProfileImage = binaryToBase64(storedImage as Buffer);
     } catch (err) {
       throw new Error('Error converting binary to base64.');
     }
   }
-  
+
   return {
     ...customerData,
     profileImage: profileImage || storedProfileImage,
@@ -143,6 +146,7 @@ export async function softDeleteCustomer(
         updatedAt: now,
       },
     },
+    { new: true },
   ).lean();
 
   return deletedCustomer;

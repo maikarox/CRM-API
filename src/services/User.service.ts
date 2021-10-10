@@ -35,7 +35,7 @@ export async function createUser(user: Partial<User>): Promise<User> {
     password: shaPass,
     roles: [userRole],
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   });
 
   return newUser;
@@ -82,6 +82,7 @@ export async function updateUserProfile(
         updatedAt: new Date(),
       },
     },
+    { new: true },
   );
 
   return updatedUser;
@@ -98,6 +99,7 @@ export async function softDeleteUser(userId: string): Promise<User> {
         updatedAt: now,
       },
     },
+    { new: true },
   );
 
   return deletedUser;
@@ -113,11 +115,11 @@ export async function grantAdminRole(userId: string): Promise<User> {
 
   const adminRole = await RoleModel.findOne({ name: 'Admin' }).lean();
 
-  const userFoundWithRole = await UserModel.findById({
+  const userFoundWithRole = await UserModel.findOne({
     _id,
-    roles: adminRole._id,
-  });
-  
+    roles: { $in: [adminRole._id] },
+  }).lean();
+
   if (userFoundWithRole) {
     throw new Error('User is already an admin.');
   }
@@ -130,6 +132,7 @@ export async function grantAdminRole(userId: string): Promise<User> {
         updatedAt: new Date(),
       },
     },
+    { new: true },
   );
 
   return updatedUser;
@@ -148,6 +151,7 @@ export async function revokeAdminRole(userId: string): Promise<User> {
         updatedAt: new Date(),
       },
     },
+    { new: true },
   );
 
   return updatedUser;
