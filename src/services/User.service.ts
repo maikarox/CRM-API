@@ -27,12 +27,15 @@ export async function createUser(user: Partial<User>): Promise<User> {
 
   const userRole = await RoleModel.findOne({ name: 'User' }).lean();
 
+  const now = new Date();
   const newUser = await UserModel.create({
     name,
     surname,
     email,
     password: shaPass,
     roles: [userRole],
+    createdAt: now,
+    updatedAt: now
   });
 
   return newUser;
@@ -124,7 +127,7 @@ export async function grantAdminRole(userId: string): Promise<User> {
     {
       $push: { roles: adminRole._id },
       $set: {
-        updatedAt: Date.now(),
+        updatedAt: new Date(),
       },
     },
   );
@@ -142,7 +145,7 @@ export async function revokeAdminRole(userId: string): Promise<User> {
     {
       $pull: { roles: adminRole._id },
       $set: {
-        updatedAt: Date.now(),
+        updatedAt: new Date(),
       },
     },
   );

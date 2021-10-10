@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 
-import { User } from '../models';
 import {
   createUser,
   grantAdminRole,
@@ -13,7 +12,7 @@ import {
 } from '../services/User.service';
 
 export const getUsers: RequestHandler = async (_req, res) => {
-  const users = (await getAllUsers()) || [];
+  const users = await getAllUsers();
 
   res.status(200).json({ users });
 };
@@ -35,16 +34,14 @@ export const registerUser: RequestHandler = async (req, res) => {
       .json({ message: `User with email ${email} already exists.` });
   }
 
-  let newUser: User;
   try {
-    newUser = await createUser({ name, surname, email, password });
+    const newUser = await createUser({ name, surname, email, password });
+    return res.status(201).json({ user: newUser });
   } catch (err) {
     return res
       .status(500)
       .json({ message: `Error creating user: ${err.message}` });
   }
-
-  return res.status(201).json({ user: newUser });
 };
 
 export const updateUser: RequestHandler = async (req, res) => {
@@ -68,6 +65,19 @@ export const updateUser: RequestHandler = async (req, res) => {
   }
 };
 
+export const disableUser: RequestHandler = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await softDeleteUser(userId);
+    return res.status(200).json({ user });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: `Error soft-deleting user: ${err.message}` });
+  }
+};
+
 export const deleteUser: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
@@ -78,19 +88,6 @@ export const deleteUser: RequestHandler = async (req, res) => {
     return res
       .status(500)
       .json({ message: `Couldn't remove user: ${err.message}` });
-  }
-};
-
-export const disableUser: RequestHandler = async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    const user = await softDeleteUser(userId);
-    return res.status(200).json({ user });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ message: `Error disabling user: ${err.message}` });
   }
 };
 

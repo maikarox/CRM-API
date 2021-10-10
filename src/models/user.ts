@@ -7,6 +7,7 @@ export interface User extends Document {
   email: string;
   roles: Schema.Types.ObjectId[];
   password: string;
+  createdAt: Date;
   updatedAt?: Date;
   deletedAt?: Date;
 }
@@ -18,6 +19,7 @@ const userSchema = new Schema<User>(
     email: { type: String, required: true, unique: true },
     roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: true },
     password: { type: String, required: true },
+    createdAt: { type: Date, required: true, default: new Date() },
     updatedAt: { type: Date, default: new Date() },
     deletedAt: { type: Date, default: new Date() }
   },
