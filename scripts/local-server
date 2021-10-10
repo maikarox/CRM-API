@@ -1,5 +1,6 @@
 #!/bin/bash
 
+docker-compose --env-file .env build mongodb
 docker-compose --env-file .env up mongodb -d
 
 if [[ $1 == "-s" ]]; then
