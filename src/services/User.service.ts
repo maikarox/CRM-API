@@ -139,7 +139,7 @@ export async function revokeAdminRole(userId: string): Promise<User> {
   const updatedUser = await UserModel.findOneAndUpdate(
     { _id },
     {
-      $oull: { roles: adminRole._id },
+      $pull: { roles: adminRole._id },
       $set: {
         updatedAt: Date.now(),
       },
