@@ -12,6 +12,12 @@ import {
   updateUserProfile,
 } from '../services/User.service';
 
+export const getUsers: RequestHandler = async (_req, res) => {
+  const users = (await getAllUsers()) || [];
+
+  res.status(200).json({ users });
+};
+
 export const registerUser: RequestHandler = async (req, res) => {
   const { name, surname, email, password } = req.body;
 
@@ -60,12 +66,6 @@ export const updateUser: RequestHandler = async (req, res) => {
       .status(500)
       .json({ message: `Error updating user: ${err.message}` });
   }
-};
-
-export const getUsers: RequestHandler = async (_req, res) => {
-  const users = (await getAllUsers()) || [];
-
-  res.status(200).json({ users });
 };
 
 export const deleteUser: RequestHandler = async (req, res) => {
