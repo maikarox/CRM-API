@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { updateUser } from '../../controllers/user.controller';
+import { updateUser } from '../../controllers/User.controller';
 import { isAuthorized } from '../../middleware/authorized';
 import { checkScopes } from '../../middleware/checkScopes';
 

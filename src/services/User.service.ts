@@ -17,6 +17,10 @@ export async function getUser(email: string, password: string): Promise<User> {
   }).lean();
 }
 
+export async function getAllUsers(): Promise<User[]> {
+  return await UserModel.find({}).sort({ updatedAt: -1 });
+}
+
 export async function createUser(user: Partial<User>): Promise<User> {
   const { name, surname, email, password } = user;
   const shaPass = createHash('sha256').update(password).digest('hex');
@@ -80,10 +84,6 @@ export async function updateUserProfile(
   return updatedUser;
 }
 
-export async function getAllUsers(): Promise<User[]> {
-  return await UserModel.find({}).sort({ updatedAt: -1 });
-}
-
 export async function softDeleteUser(userId: string): Promise<User> {
   const _id = userId as unknown as Schema.Types.ObjectId;
   const now = new Date();
@@ -114,6 +114,7 @@ export async function grantAdminRole(userId: string): Promise<User> {
     _id,
     roles: adminRole._id,
   });
+  
   if (userFoundWithRole) {
     throw new Error('User is already an admin.');
   }

@@ -6,7 +6,7 @@ import {
   disableUser,
   grantUserAdminRole,
   revokeUserAdminRole,
-} from '../../controllers/user.controller';
+} from '../../controllers/User.controller';
 import { isAuthorized } from '../../middleware/authorized';
 import { checkScopes } from '../../middleware/checkScopes';
 
