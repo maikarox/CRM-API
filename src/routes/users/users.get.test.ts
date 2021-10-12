@@ -22,10 +22,10 @@ const closeServer = async (): Promise<void> => {
   await server.close();
 };
 
-const agent = startServer();
+let agent: request.SuperAgentTest;
 beforeAll(() => {
   db.connect();
-  startServer();
+  agent = startServer();
 });
 
 afterAll(async () => {
