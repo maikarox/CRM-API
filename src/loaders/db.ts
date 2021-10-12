@@ -1,7 +1,7 @@
 import { connect } from 'mongoose';
 
-import { configEnv } from './env';
-import logger from './logger';
+import { configEnv } from '../config/env';
+import logger from '../config/logger';
 
 export async function connectDB(): Promise<void> {
   const { MONGODB_URI } = configEnv;
@@ -11,7 +11,7 @@ export async function connectDB(): Promise<void> {
 
     logger.info('Connected to the database!');
   } catch (err) {
-    logger.error('Could not connect to the database!', err);
+    logger.error('Could not connect to the database.', err);
     process.exit(1);
   }
 }

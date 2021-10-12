@@ -3,7 +3,7 @@ import express from 'express';
 import expressLoader from './loaders/express';
 import { configEnv } from './config/env';
 import logger from './config/logger';
-import { connectDB } from './config/db';
+import { connectDB } from './loaders/db';
 
 const runServer = async () => {
   await connectDB();
