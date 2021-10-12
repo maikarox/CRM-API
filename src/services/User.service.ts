@@ -11,14 +11,19 @@ export async function getUserByEmail(email: string): Promise<User> {
 export async function getUser(email: string, password: string): Promise<User> {
   const shaPass = createHash('sha256').update(password).digest('hex');
 
-  return await UserModel.findOne({
-    email,
-    password: shaPass,
-  }).lean();
+  return await UserModel.findOne(
+    {
+      email,
+      password: shaPass,
+    },
+    { password: 0 },
+  ).lean();
 }
 
 export async function getAllUsers(): Promise<User[]> {
-  return await UserModel.find({}).sort({ updatedAt: -1 });
+  return await UserModel.find({}, { password: 0 })
+    .sort({ updatedAt: -1 })
+    .lean();
 }
 
 export async function createUser(user: Partial<User>): Promise<User> {
