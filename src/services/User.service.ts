@@ -26,7 +26,7 @@ export async function getAllUsers(): Promise<User[]> {
     .lean();
 }
 
-export async function createUser(user: Partial<User>): Promise<User> {
+export async function createUser(user: Partial<User>): Promise<Partial<User>> {
   const { name, surname, email, password } = user;
   const shaPass = createHash('sha256').update(password).digest('hex');
 
@@ -38,18 +38,25 @@ export async function createUser(user: Partial<User>): Promise<User> {
     surname,
     email,
     password: shaPass,
-    roles: [userRole],
+    roles: [userRole._id],
     createdAt: now,
     updatedAt: now,
   });
 
-  return newUser;
+  return {
+    _id: newUser._id,
+    name,
+    surname,
+    createdAt: now,
+    updatedAt: now,
+    roles: [userRole._id]
+  };
 }
 
 export async function updateUserProfile(
   user: Partial<User> & { userId: string },
-): Promise<User> {
-  const { userId, name, surname, email, password } = user;
+): Promise<Partial<User>> {
+  const { userId, name ='', surname = '', email = '', password = ''} = user;
   const _id = userId as unknown as Schema.Types.ObjectId;
   const userData: Record<string, unknown> = {};
 
@@ -79,21 +86,30 @@ export async function updateUserProfile(
     userData.password = shaPass;
   }
 
+  const updatedAt = new Date();
   const updatedUser = await UserModel.findOneAndUpdate(
     { _id },
     {
       $set: {
         ...userData,
-        updatedAt: new Date(),
+        updatedAt,
       },
     },
     { new: true },
   );
 
-  return updatedUser;
+  return {
+    _id,
+    name: updatedUser.name,
+    surname: updatedUser.surname,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
+    updatedAt,
+    roles: updatedUser.roles,
+  };
 }
 
-export async function softDeleteUser(userId: string): Promise<User> {
+export async function softDeleteUser(userId: string): Promise<Partial<User>> {
   const _id = userId as unknown as Schema.Types.ObjectId;
   const now = new Date();
   const deletedUser = await UserModel.findOneAndUpdate(
@@ -107,7 +123,15 @@ export async function softDeleteUser(userId: string): Promise<User> {
     { new: true },
   );
 
-  return deletedUser;
+  return {
+    _id,
+    name: deletedUser?.name,
+    surname: deletedUser?.surname,
+    createdAt: deletedUser?.createdAt,
+    updatedAt: now,
+    deletedAt: now,
+    roles: deletedUser?.roles,
+  };
 }
 
 export async function removeUser(userId: string): Promise<void> {
@@ -115,7 +139,7 @@ export async function removeUser(userId: string): Promise<void> {
   await UserModel.findOneAndDelete({ _id });
 }
 
-export async function grantAdminRole(userId: string): Promise<User> {
+export async function grantAdminRole(userId: string): Promise<Partial<User>> {
   const _id = userId as unknown as Schema.Types.ObjectId;
 
   const adminRole = await RoleModel.findOne({ name: 'Admin' }).lean();
@@ -129,25 +153,34 @@ export async function grantAdminRole(userId: string): Promise<User> {
     throw new Error('User is already an admin.');
   }
 
+  const updatedAt = new Date();
   const updatedUser = await UserModel.findOneAndUpdate(
     { _id },
     {
       $push: { roles: adminRole._id },
       $set: {
-        updatedAt: new Date(),
+        updatedAt,
       },
     },
     { new: true },
   );
 
-  return updatedUser;
+  return {
+    _id,
+    name: updatedUser?.name,
+    surname: updatedUser?.surname,
+    createdAt: updatedUser?.createdAt,
+    updatedAt,
+    roles: updatedUser?.roles,
+  };
 }
 
-export async function revokeAdminRole(userId: string): Promise<User> {
+export async function revokeAdminRole(userId: string): Promise<Partial<User>> {
   const _id = userId as unknown as Schema.Types.ObjectId;
 
   const adminRole = await RoleModel.findOne({ name: 'Admin' }).lean();
 
+  const updatedAt = new Date();
   const updatedUser = await UserModel.findOneAndUpdate(
     { _id },
     {
@@ -159,5 +192,12 @@ export async function revokeAdminRole(userId: string): Promise<User> {
     { new: true },
   );
 
-  return updatedUser;
+  return {
+    _id,
+    name: updatedUser?.name,
+    surname: updatedUser?.surname,
+    createdAt: updatedUser?.createdAt,
+    updatedAt,
+    roles: updatedUser?.roles,
+  };
 }

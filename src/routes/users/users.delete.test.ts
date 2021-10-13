@@ -4,18 +4,27 @@ import { Server } from 'http';
 import request from 'supertest';
 import { verify } from 'jsonwebtoken';
 
-import { closeServer, db, startServer, testUserToken } from '../../jest-helpers';
+import {
+  closeServer,
+  db,
+  startServer,
+  testUserToken,
+} from '../../jest-helpers';
+import { UserModel } from '../../models';
+
+import { userFixture, userFixtureId } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
 
 let server: Server;
 let agent: request.SuperAgentTest;
 
-beforeAll(() => {
+beforeAll(async () => {
   db.connect();
+  await UserModel.create(userFixture);
   const agentServer = startServer(server, agent);
   server = agentServer.server;
-  agent = agentServer.agent
+  agent = agentServer.agent;
 });
 
 afterAll(async () => {
@@ -23,35 +32,39 @@ afterAll(async () => {
   await closeServer(server);
 });
 
-describe('GET /users', () => {
+describe('DELETE /users/:userId', () => {
   describe('when token is valid and user has permissions', () => {
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
-    
+
     beforeAll(() => {
       token = testUserToken({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['read:all_users'],
+        permissions: ['delete:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['read:all_users'],
+        permissions: ['delete:all_users'],
         expiresIn: 7000000000,
       }));
     });
 
-    it('should return all users', async () => {
+    afterAll(async () => {
+      await UserModel.deleteOne({email: userFixture.email});
+    });
+
+    it('should hard delete the user from the db', async () => {
       const result = await agent
-        .get(`/api/users`)
+        .delete(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
 
-      expect(result.status).toEqual(200);
+      expect(result.status).toEqual(204);
     });
   });
 
@@ -79,7 +92,7 @@ describe('GET /users', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .get(`/api/users`)
+        .delete(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -88,12 +101,12 @@ describe('GET /users', () => {
 
   describe('when token is invalid', () => {
     beforeAll(() => {
-     (verify as jest.Mock).mockImplementation(() => ({}));
+      (verify as jest.Mock).mockImplementation(() => ({}));
     });
 
     it('should return 401', async () => {
       const result = await agent
-        .get(`/api/users`)
+        .delete(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer invalid-token`);
 
       expect(result.status).toEqual(401);

@@ -9,13 +9,12 @@ jest.mock('jsonwebtoken');
 
 beforeAll(async () => {
   db.connect();
+  await RoleModel.deleteOne({ _id: rolesFixture[0]._id });
+  await RoleModel.deleteOne({ _id: rolesFixture[1]._id });
   await RoleModel.insertMany(rolesFixture);
 });
 
 afterAll(async () => {
-  await RoleModel.deleteOne({ _id: rolesFixture[0]._id });
-  await RoleModel.deleteOne({ _id: rolesFixture[1]._id });
-  
   await db.disconnect();
   
   jest.clearAllMocks();
