@@ -1,11 +1,21 @@
 import { Schema, Types } from 'mongoose';
 
+export const userRoleId = '616191c1fc13ae60130001f7';
 export const roleId1 = new Types.ObjectId(
   '616191c1fc13ae60130001e5',
 ) as unknown as Schema.Types.ObjectId;
 export const roleId2 = new Types.ObjectId(
   '616191c1fc13ae60130001f6',
 ) as unknown as Schema.Types.ObjectId;
+export const roleId3 = new Types.ObjectId(
+    userRoleId,
+) as unknown as Schema.Types.ObjectId;
+
+export const userRole = {
+  _id: roleId3,
+  name: 'User',
+  permissions: ['permission4', 'permission5', 'permission6'],
+};
 
 export const rolesFixture = [
   {
@@ -18,4 +28,5 @@ export const rolesFixture = [
     name: 'Role-2',
     permissions: ['permission4', 'permission5', 'permission6'],
   },
+  userRole,
 ];
