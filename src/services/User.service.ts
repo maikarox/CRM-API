@@ -38,7 +38,7 @@ export async function createUser(user: Partial<User>): Promise<Partial<User>> {
     surname,
     email,
     password: shaPass,
-    roles: [userRole],
+    roles: [userRole._id],
     createdAt: now,
     updatedAt: now,
   });
@@ -49,14 +49,14 @@ export async function createUser(user: Partial<User>): Promise<Partial<User>> {
     surname,
     createdAt: now,
     updatedAt: now,
-    roles: newUser.roles
+    roles: [userRole._id]
   };
 }
 
 export async function updateUserProfile(
   user: Partial<User> & { userId: string },
 ): Promise<Partial<User>> {
-  const { userId, name, surname, email, password } = user;
+  const { userId, name ='', surname = '', email = '', password = ''} = user;
   const _id = userId as unknown as Schema.Types.ObjectId;
   const userData: Record<string, unknown> = {};
 
@@ -100,11 +100,12 @@ export async function updateUserProfile(
 
   return {
     _id,
-    name: updatedUser?.name,
-    surname: updatedUser?.surname,
-    createdAt: updatedUser?.createdAt,
+    name: updatedUser.name,
+    surname: updatedUser.surname,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
     updatedAt,
-    roles: updatedUser?.roles,
+    roles: updatedUser.roles,
   };
 }
 
