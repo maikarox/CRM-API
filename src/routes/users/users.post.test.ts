@@ -1,5 +1,4 @@
 /* eslint-disable jest/no-done-callback */
-// import express from 'express';
 import { Server } from 'http';
 import request from 'supertest';
 import { verify } from 'jsonwebtoken';
@@ -21,6 +20,7 @@ let agent: request.SuperAgentTest;
 
 beforeAll(async () => {
   db.connect();
+  await RoleModel.deleteOne({ _id: roleId3 });
   await RoleModel.create(userRole);
   const agentServer = startServer(server, agent);
   server = agentServer.server;

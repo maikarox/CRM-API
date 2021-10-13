@@ -1,5 +1,4 @@
 /* eslint-disable jest/no-done-callback */
-// import express from 'express';
 import { Server } from 'http';
 import request from 'supertest';
 import { verify } from 'jsonwebtoken';
