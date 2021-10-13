@@ -1,36 +1,26 @@
 /* eslint-disable jest/no-done-callback */
-import express from 'express';
+// import express from 'express';
 import { Server } from 'http';
 import request from 'supertest';
 import { verify } from 'jsonwebtoken';
 
-import expressLoader from '../../loaders/express';
-import { db, testUserToken } from '../../jest-helpers';
+import { closeServer, db, startServer, testUserToken } from '../../jest-helpers';
 
 jest.mock('jsonwebtoken');
 
 let server: Server;
-const startServer = (): request.SuperAgentTest => {
-  const app = express();
-  expressLoader(app);
-  server = app.listen();
-  const agent = request.agent(server);
-  return agent;
-};
-
-const closeServer = async (): Promise<void> => {
-  await server.close();
-};
-
 let agent: request.SuperAgentTest;
+
 beforeAll(() => {
   db.connect();
-  agent = startServer();
+  const agentServer = startServer(server, agent);
+  server = agentServer.server;
+  agent = agentServer.agent
 });
 
 afterAll(async () => {
   await db.disconnect();
-  await closeServer();
+  await closeServer(server);
 });
 
 describe('GET /users', () => {

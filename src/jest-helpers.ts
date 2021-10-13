@@ -1,7 +1,11 @@
+import express from 'express';
+import { Server } from 'http';
 import { sign } from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import request from 'supertest';
 
 import { configEnv } from './config/env';
+import expressLoader from './loaders/express';
 
 export const testUserToken = ({
   userId,
@@ -55,4 +59,19 @@ const disconnectDB = async (): Promise<void> => {
 export const db = {
   connect: connectDB,
   disconnect: disconnectDB,
+};
+
+export const startServer = (
+  server: Server,
+  agent: request.SuperAgentTest,
+): { agent: request.SuperAgentTest; server: Server } => {
+  const app = express();
+  expressLoader(app);
+  server = app.listen();
+  agent = request.agent(server);
+  return { agent, server };
+};
+
+export const closeServer = async (server: Server): Promise<void> => {
+  await server.close();
 };
