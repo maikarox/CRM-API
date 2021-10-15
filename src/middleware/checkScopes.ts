@@ -3,12 +3,13 @@ import { RequestHandler } from 'express';
 import { verifyToken } from '../helpers/decodeToken';
 
 export const checkScopes =
-  (requiredRole: string, requiredPermissions: string[]): RequestHandler =>
+  (requiredPermissions: string[], requiredRole?: string): RequestHandler =>
   (req, res, next) => {
     const { authorization } = req.headers;
     const { roles = '', permissions = [], userId } = verifyToken(authorization);
 
-    const hasRole = roles.includes(requiredRole);
+    const isAdmin = roles.includes('Admin');
+    const hasRole = isAdmin || roles.includes(requiredRole);
 
     let hasPermissions = false;
     for (const permission of requiredPermissions) {

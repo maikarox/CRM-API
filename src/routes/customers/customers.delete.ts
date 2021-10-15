@@ -9,7 +9,7 @@ export default (app: Router): void => {
   app.delete(
     '/:customerId',
     isAuthorized,
-    checkScopes('Admin', ['delete:all_customers']),
+    checkScopes(['delete:all_customers']),
     asyncHandler(deleteUser),
   );
 };

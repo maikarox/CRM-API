@@ -14,28 +14,28 @@ export default (app: Router): void => {
   app.patch(
     '/:userId',
     isAuthorized,
-    checkScopes('Admin', ['update:all_users']),
+    checkScopes(['update:all_users']),
     asyncHandler(updateUser),
   );
 
   app.patch(
     '/:userId/disable',
     isAuthorized,
-    checkScopes('Admin', ['update:all_users']),
+    checkScopes(['update:all_users']),
     asyncHandler(disableUser),
   );
 
   app.patch(
     '/:userId/grant/admin',
     isAuthorized,
-    checkScopes('Admin', ['update:all_roles']),
+    checkScopes(['update:all_admin']),
     asyncHandler(grantUserAdminRole),
   );
 
   app.patch(
     '/:userId/revoke/admin',
     isAuthorized,
-    checkScopes('Admin', ['update:all_roles']),
+    checkScopes(['update:all_admin']),
     asyncHandler(revokeUserAdminRole),
   );
 };
