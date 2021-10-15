@@ -4,6 +4,11 @@ import { Schema, Types } from 'mongoose';
 import { base64ToBinary, binaryToBase64 } from '../helpers/encoding';
 import { Customer, CustomerModel } from '../models';
 
+export async function getCustomerById(customerId: string): Promise<Partial<Customer>>{
+  const _id = customerId as unknown as Schema.Types.ObjectId;
+  return await CustomerModel.findById({_id});
+}
+
 export async function getAllCustomers(): Promise<Partial<Customer>[]> {
   const customers = await CustomerModel.find({}).sort({ updatedAt: -1 });
 

@@ -3,6 +3,7 @@ import { RequestHandler } from 'express';
 import {
   createCustomerProfile,
   getAllCustomers,
+  getCustomerById,
   removeCustomer,
   softDeleteCustomer,
   updateCustomerProfile,
@@ -51,6 +52,11 @@ export const updateCustomer: RequestHandler = async (req, res) => {
   }
 
   try {
+    const customerExists = await getCustomerById(customerId);
+    if (!customerExists) {
+      return res.status(404).json({ message: 'Customer does not exist.' });
+    }
+
     const customer = await updateCustomerProfile({
       customerId,
       name,
@@ -61,7 +67,7 @@ export const updateCustomer: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ customer });
   } catch (err) {
-    return res.status(500).json(`Error updating customer: ${customerId}`);
+    return res.status(500).json(`Error updating customer: ${err.message}`);
   }
 };
 
@@ -69,6 +75,11 @@ export const disableCustomer: RequestHandler = async (req, res) => {
   const { customerId } = req.params;
 
   try {
+    const customerExists = await getCustomerById(customerId);
+    if (!customerExists) {
+      return res.status(404).json({ message: 'Customer does not exist.' });
+    }
+
     const customer = await softDeleteCustomer(customerId);
     return res.status(200).json({ customer });
   } catch (err) {
@@ -80,6 +91,11 @@ export const deleteUser: RequestHandler = async (req, res) => {
   const { customerId } = req.params;
 
   try {
+    const customerExists = await getCustomerById(customerId);
+    if (!customerExists) {
+      return res.status(404).json({ message: 'Customer does not exist.' });
+    }
+
     await removeCustomer(customerId);
     return res.sendStatus(204);
   } catch (err) {
