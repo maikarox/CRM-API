@@ -34,7 +34,7 @@ To start the DB and server run:
 The `-s` argument is passed to the script to seed tha database with the roles, users and customers.
 
 You can test the endpoint with the users:
-- admin@example.com: with role User and Admin.
+- admin@example.com: with role Admin.
 - user1@example.com: with role User.
 
 with the password Pass-Test
