@@ -16,7 +16,7 @@ export const userFixture: Partial<User> = {
   surname: 'Langstone',
   email: 'user.test1@example.com',
   password: 'ee250b9faa440d344ddebcb27abe9eaac87f8aca7b0584d95bc2cc3d94c9e250',
-  roles: [roleId1],
+  roles: [roleId3],
 };
 
 export const user2Fixture: Partial<User> = {
@@ -25,5 +25,5 @@ export const user2Fixture: Partial<User> = {
   surname: 'Stone',
   email: 'alice.stone@example.com',
   password: 'ee250b9faa440d344ddebcb27abe9eaac87f8aca7b0584d95bc2cc3d94c9e250',
-  roles: [roleId3],
+  roles: [roleId1],
 };

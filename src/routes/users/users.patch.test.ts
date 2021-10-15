@@ -11,7 +11,7 @@ import {
 } from '../../jest-helpers';
 import { UserModel } from '../../models';
 
-import { user2Fixture, user2FixtureId } from './fixtures/users';
+import { userFixture, userFixtureId } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
 
@@ -27,8 +27,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await UserModel.deleteOne({ email: user2Fixture.email });
-  await UserModel.create(user2Fixture);
+  await UserModel.deleteOne({ email: userFixture.email });
+  await UserModel.create(userFixture);
   await db.disconnect();
   await closeServer(server);
 });
@@ -58,12 +58,12 @@ describe('PATCH /users/:userId', () => {
 
     it('should return 200', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}`)
+        .patch(`/api/users/${userFixtureId}`)
         .send({
           name: 'User test',
           surname: 'Surname',
           email: 'usertest@email.com',
-          userId: user2FixtureId,
+          userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toEqual(200);
@@ -94,7 +94,7 @@ describe('PATCH /users/:userId', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}`)
+        .patch(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -108,7 +108,7 @@ describe('PATCH /users/:userId', () => {
 
     it('should return 401', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}`)
+        .patch(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer invalid-token`);
 
       expect(result.status).toEqual(401);
@@ -141,9 +141,9 @@ describe('PATCH /users/:userId/disable', () => {
 
     it('should return 200', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/disable`)
+        .patch(`/api/users/${userFixtureId}/disable`)
         .send({
-          userId: user2FixtureId,
+          userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toEqual(200);
@@ -174,7 +174,7 @@ describe('PATCH /users/:userId/disable', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/disable`)
+        .patch(`/api/users/${userFixtureId}/disable`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -207,9 +207,9 @@ describe('PATCH /users/:userId/grant/admin', () => {
 
     it('should return 200', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/grant/admin`)
+        .patch(`/api/users/${userFixtureId}/grant/admin`)
         .send({
-          userId: user2FixtureId,
+          userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toEqual(200);
@@ -240,7 +240,7 @@ describe('PATCH /users/:userId/grant/admin', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/grant/admin`)
+        .patch(`/api/users/${userFixtureId}/grant/admin`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -273,9 +273,9 @@ describe('PATCH /users/:userId/revoke/admin', () => {
 
     it('should return 200', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/revoke/admin`)
+        .patch(`/api/users/${userFixtureId}/revoke/admin`)
         .send({
-          userId: user2FixtureId,
+          userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toEqual(200);
@@ -306,7 +306,7 @@ describe('PATCH /users/:userId/revoke/admin', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .patch(`/api/users/${user2FixtureId}/revoke/admin`)
+        .patch(`/api/users/${userFixtureId}/revoke/admin`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
