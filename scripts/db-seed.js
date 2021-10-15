@@ -37,7 +37,7 @@ async function seedDB() {
           'create:all_users',
           'update:all_users',
           'delete:all_users',
-          'update:all_admin',
+          'update:all_admins',
           'read:all_customers',
           'create:all_customers',
           'update:all_customers',

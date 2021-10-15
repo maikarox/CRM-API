@@ -193,14 +193,14 @@ describe('PATCH /users/:userId/grant/admin', () => {
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['update:all_admin'],
+        permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['update:all_admin'],
+        permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
     });
@@ -259,14 +259,14 @@ describe('PATCH /users/:userId/revoke/admin', () => {
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['update:all_admin'],
+        permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['update:all_admin'],
+        permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
     });
