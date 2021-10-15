@@ -82,6 +82,7 @@ describe('POST /users', () => {
       expect(user._id).toBeDefined();
       expect(user.name).toEqual(newUser.name);
       expect(user.surname).toEqual(newUser.surname);
+      expect(user.email).toEqual(newUser.email);
       expect(user.roles).toEqual([userRoleId]);
       expect(user.createdAt).toBeDefined();
       expect(user.updatedAt).toBeDefined();

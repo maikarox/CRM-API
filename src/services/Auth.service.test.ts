@@ -41,8 +41,8 @@ describe('createAccessToken', () => {
     expect(sign).toHaveBeenCalledWith(
       {
         email: userFixture.email,
-        permissions: ['permission1', 'permission2', 'permission3'],
-        roles: ['Role-1'],
+        permissions: ['permission4', 'permission5', 'permission6'],
+        roles: ['User'],
         userId: userFixture._id,
       },
       expect.any(String),

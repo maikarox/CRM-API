@@ -50,6 +50,26 @@ with the password Pass-Test
 
 2. Include the token in the Authorization header as a Bearer token.
 
+### Roles
+
+The existing user roles are `User` and `Admin`.
+
+- The role `User` has the following permissions:
+
+   - `read:all_customers`: Get customers.
+
+   - `create:all_customers`: Create customers.
+
+   - `update:all_customers`: Update and soft-delete customers.
+
+- The role `Admin` has all User permissions and the following:
+
+   - `delete:all_customers`: Hard delete customers.
+   - `read:all_users`: Read users.
+   - `create:all_users`: Create users.
+   - `update:all_users`: Update and soft-delete.
+   - `update:all_admins`: Change admin status.
+   - `delete:all_users`: Hard delete users.
 
 ### Existing routes
 
@@ -81,12 +101,12 @@ with the password Pass-Test
 - `PATCH /api/users/:userId/grant/admin`: 
 
    - Route to grant Admin role to a user.
-   - Rule protected by `Admin` role and `update:all_roles` permission.
+   - Rule protected by `Admin` role and `update:all_admins` permission.
 
 - `PATCH /api/users/:userId/revoke/admin`: 
    
    - Route to remove Admin role from a user.
-   - Rule protected by `Admin` role and `update:all_roles` permission.
+   - Rule protected by `Admin` role and `update:all_admins` permission.
 
 - `DELETE /api/users/:userId`: 
    

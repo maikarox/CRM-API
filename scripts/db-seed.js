@@ -27,7 +27,6 @@ async function seedDB() {
           'read:all_customers',
           'create:all_customers',
           'update:all_customers',
-          'delete:all_customers',
         ],
       },
       {
@@ -38,7 +37,11 @@ async function seedDB() {
           'create:all_users',
           'update:all_users',
           'delete:all_users',
-          'update:all_roles',
+          'update:all_admins',
+          'read:all_customers',
+          'create:all_customers',
+          'update:all_customers',
+          'delete:all_customers',
         ],
       },
     ]);
@@ -64,7 +67,6 @@ async function seedDB() {
           'ee250b9faa440d344ddebcb27abe9eaac87f8aca7b0584d95bc2cc3d94c9e250',
         roles: [
           new Types.ObjectId('616191f5fc13ae60130001e8'),
-          new Types.ObjectId('616191c1fc13ae60130001e5'),
         ],
       },
       {
