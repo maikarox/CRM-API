@@ -1,51 +1,50 @@
-/* eslint-disable jest/no-done-callback */
 import { Server } from 'http';
-import request from 'supertest';
+import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
 import {
   closeServer,
-  db,
   startServer,
   testUserToken,
 } from '../../jest-helpers';
-import { UserModel } from '../../models';
+import { getUserById, removeUser } from '../../services/User.service';
 
 import { userFixture, userFixtureId } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
+jest.mock('../../services/User.service');
 
 let server: Server;
-let agent: request.SuperAgentTest;
+let agent: SuperAgentTest;
 
-beforeAll(async () => {
-  db.connect();
-  await UserModel.deleteOne({email: userFixture.email});
-  await UserModel.create(userFixture);
+beforeAll(() => {
   const agentServer = startServer(server, agent);
   server = agentServer.server;
   agent = agentServer.agent;
 });
 
 afterAll(async () => {
-  await UserModel.deleteOne({email: userFixture.email});
-  await db.disconnect();
   await closeServer(server);
 });
 
 describe('DELETE /users/:userId', () => {
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
 
-    beforeAll(() => {
+    beforeAll(async () => {
       token = testUserToken({
         userId,
         email,
         roles: ['Admin'],
         permissions: ['delete:all_users'],
       });
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixture._id,
+      }));
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
@@ -54,13 +53,17 @@ describe('DELETE /users/:userId', () => {
         permissions: ['delete:all_users'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should hard delete the user from the db', async () => {
-      const result = await agent
+      result = await agent
         .delete(`/api/users/${userFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
+    });
 
+    it('should call removeUser', () => {
+      expect(removeUser).toHaveBeenCalledWith('61616e10fc13ae4d5f000c32');
+    });
+
+    it('should return 200', () => {
       expect(result.status).toEqual(204);
     });
   });
