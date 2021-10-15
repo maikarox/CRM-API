@@ -1,34 +1,36 @@
-/* eslint-disable jest/no-done-callback */
 import { Server } from 'http';
-import request from 'supertest';
+import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
-import { closeServer, db, startServer, testUserToken } from '../../jest-helpers';
+import { closeServer, startServer, testUserToken } from '../../jest-helpers';
+import { getAllUsers } from '../../services/User.service';
+import { userFixture } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
+jest.mock('../../services/User.service');
 
 let server: Server;
-let agent: request.SuperAgentTest;
+let agent: SuperAgentTest;
 
 beforeAll(() => {
-  db.connect();
   const agentServer = startServer(server, agent);
   server = agentServer.server;
   agent = agentServer.agent
 });
 
 afterAll(async () => {
-  await db.disconnect();
+  jest.clearAllMocks()
   await closeServer(server);
 });
 
 describe('GET /users', () => {
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
     
-    beforeAll(() => {
+    beforeAll(async () => {
       token = testUserToken({
         userId,
         email,
@@ -43,13 +45,19 @@ describe('GET /users', () => {
         permissions: ['read:all_users'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should return all users', async () => {
-      const result = await agent
+      (getAllUsers as jest.Mock).mockImplementationOnce(() => [userFixture]);
+
+      result = await agent
         .get(`/api/users`)
         .set('Authorization', `Bearer ${token}`);
+    });
 
+    it('should call getAllUsers', () => {
+      expect(getAllUsers).toBeCalledTimes(1);
+    });
+
+    it('should return all users', () => {
       expect(result.status).toEqual(200);
     });
   });

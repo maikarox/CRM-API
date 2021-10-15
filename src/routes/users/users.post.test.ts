@@ -1,47 +1,36 @@
-/* eslint-disable jest/no-done-callback */
 import { Server } from 'http';
-import request from 'supertest';
+import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
 import {
   closeServer,
-  db,
   startServer,
   testUserToken,
 } from '../../jest-helpers';
-import { RoleModel, UserModel } from '../../models';
+import { createUser } from '../../services/User.service';
 
-import { userRole, roleId3, userRoleId } from './fixtures/roles';
+import { userFixture } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
+jest.mock('../../services/User.service');
 
 let server: Server;
-let agent: request.SuperAgentTest;
+let agent: SuperAgentTest;
 
-beforeAll(async () => {
-  db.connect();
-  await RoleModel.deleteOne({ _id: roleId3 });
-  await RoleModel.create(userRole);
+beforeAll(() => {
   const agentServer = startServer(server, agent);
   server = agentServer.server;
   agent = agentServer.agent;
 });
 
 afterAll(async () => {
-  await RoleModel.deleteOne({ _id: roleId3 });
-  await db.disconnect();
+  jest.clearAllMocks()
   await closeServer(server);
 });
 
 describe('POST /users', () => {
   describe('when token is valid and user has permissions', () => {
-    const newUser = {
-      name: 'User test',
-      surname: 'Surname',
-      email: 'usertest@email.com',
-      password: 'Somepassword',
-    };
-
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
@@ -61,14 +50,10 @@ describe('POST /users', () => {
         permissions: ['create:all_users'],
         expiresIn: 7000000000,
       }));
-    });
 
-    afterAll(async () => {
-      await UserModel.deleteOne({ email: 'usertest@email.com' });
-    });
+      (createUser as jest.Mock).mockImplementationOnce(() => userFixture);
 
-    it('should create the user', async () => {
-      const result = await agent
+      result = await agent
         .post(`/api/users`)
         .send({
           name: 'User test',
@@ -77,15 +62,19 @@ describe('POST /users', () => {
           password: 'Somepassword',
         })
         .set('Authorization', `Bearer ${token}`);
-      const { user } = result.body;
+    });
+
+    it('should call createUser with the correct params', () => {
+      expect(createUser).toHaveBeenCalledWith({
+        email: 'usertest@email.com',
+        name: 'User test',
+        password: 'Somepassword',
+        surname: 'Surname',
+      });
+    });
+
+    it('should return 201', () => {
       expect(result.status).toEqual(201);
-      expect(user._id).toBeDefined();
-      expect(user.name).toEqual(newUser.name);
-      expect(user.surname).toEqual(newUser.surname);
-      expect(user.email).toEqual(newUser.email);
-      expect(user.roles).toEqual([userRoleId]);
-      expect(user.createdAt).toBeDefined();
-      expect(user.updatedAt).toBeDefined();
     });
   });
 

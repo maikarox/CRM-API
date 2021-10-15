@@ -4,7 +4,13 @@ import { Schema } from 'mongoose';
 import { RoleModel, User, UserModel } from '../models';
 
 export async function getUserByEmail(email: string): Promise<User> {
-  const user = await UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email }, { password: 0 });
+  return user;
+}
+
+export async function getUserById(userId: string): Promise<User> {
+  const _id = userId as unknown as Schema.Types.ObjectId;
+  const user = await UserModel.findOne({ _id }, { password: 0 });
   return user;
 }
 
@@ -101,12 +107,12 @@ export async function updateUserProfile(
 
   return {
     _id,
-    name: updatedUser?.name,
-    surname: updatedUser?.surname,
-    email: updatedUser?.email,
-    createdAt: updatedUser?.createdAt,
+    name: updatedUser.name,
+    surname: updatedUser.surname,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
     updatedAt,
-    roles: updatedUser?.roles,
+    roles: updatedUser.roles,
   };
 }
 
@@ -126,12 +132,12 @@ export async function softDeleteUser(userId: string): Promise<Partial<User>> {
 
   return {
     _id,
-    name: deletedUser?.name,
-    surname: deletedUser?.surname,
-    createdAt: deletedUser?.createdAt,
-    updatedAt: deletedUser?.updatedAt,
-    deletedAt: deletedUser?.deletedAt,
-    roles: deletedUser?.roles,
+    name: deletedUser.name,
+    surname: deletedUser.surname,
+    createdAt: deletedUser.createdAt,
+    updatedAt: deletedUser.updatedAt,
+    deletedAt: deletedUser.deletedAt,
+    roles: deletedUser.roles,
   };
 }
 
@@ -168,12 +174,12 @@ export async function grantAdminRole(userId: string): Promise<Partial<User>> {
 
   return {
     _id,
-    name: updatedUser?.name,
-    surname: updatedUser?.surname,
-    email: updatedUser?.email,
-    createdAt: updatedUser?.createdAt,
+    name: updatedUser.name,
+    surname: updatedUser.surname,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
     updatedAt,
-    roles: updatedUser?.roles,
+    roles: updatedUser.roles,
   };
 }
 
@@ -196,10 +202,10 @@ export async function revokeAdminRole(userId: string): Promise<Partial<User>> {
 
   return {
     _id,
-    name: updatedUser?.name,
-    surname: updatedUser?.surname,
-    createdAt: updatedUser?.createdAt,
+    name: updatedUser.name,
+    surname: updatedUser.surname,
+    createdAt: updatedUser.createdAt,
     updatedAt,
-    roles: updatedUser?.roles,
+    roles: updatedUser.roles,
   };
 }

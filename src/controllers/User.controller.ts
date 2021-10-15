@@ -5,6 +5,7 @@ import {
   grantAdminRole,
   getAllUsers,
   getUserByEmail,
+  getUserById,
   removeUser,
   revokeAdminRole,
   softDeleteUser,
@@ -49,6 +50,11 @@ export const updateUser: RequestHandler = async (req, res) => {
   const { name, surname, email, password } = req.body;
 
   try {
+    const userExists = await getUserById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
     const user = await updateUserProfile({
       userId,
       name,
@@ -69,6 +75,11 @@ export const disableUser: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    const userExists = await getUserById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
     const user = await softDeleteUser(userId);
     return res.status(200).json({ user });
   } catch (err) {
@@ -82,6 +93,11 @@ export const deleteUser: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    const userExists = await getUserById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    
     await removeUser(userId);
     return res.sendStatus(204);
   } catch (err) {
@@ -95,6 +111,11 @@ export const revokeUserAdminRole: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    const userExists = await getUserById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: `User not found.` });
+    }
+
     const user = await revokeAdminRole(userId);
     return res.status(200).json({ user });
   } catch (err) {
@@ -108,6 +129,11 @@ export const grantUserAdminRole: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    const userExists = await getUserById(userId);
+    if (!userExists) {
+      return res.status(404).json({ message: `User not found.` });
+    }
+
     const user = await grantAdminRole(userId);
     return res.status(200).json({ user });
   } catch (err) {

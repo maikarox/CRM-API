@@ -1,40 +1,37 @@
-// /* eslint-disable jest/no-done-callback */
 import { Server } from 'http';
-import request from 'supertest';
+import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
+import { closeServer, startServer, testUserToken } from '../../jest-helpers';
 import {
-  closeServer,
-  db,
-  startServer,
-  testUserToken,
-} from '../../jest-helpers';
-import { UserModel } from '../../models';
+  softDeleteUser,
+  getUserById,
+  updateUserProfile,
+  grantAdminRole,
+  revokeAdminRole
+} from '../../services/User.service';
 
-import { userFixture, userFixtureId } from './fixtures/users';
+import { userFixtureId } from './fixtures/users';
 
 jest.mock('jsonwebtoken');
+jest.mock('../../services/User.service');
 
 let server: Server;
-let agent: request.SuperAgentTest;
+let agent: SuperAgentTest;
 
-beforeAll(async () => {
-  db.connect();
-  await UserModel.deleteMany({});
+beforeAll(() => {
   const agentServer = startServer(server, agent);
   server = agentServer.server;
   agent = agentServer.agent;
 });
 
 afterAll(async () => {
-  await UserModel.deleteOne({ email: userFixture.email });
-  await UserModel.create(userFixture);
-  await db.disconnect();
   await closeServer(server);
 });
 
 describe('PATCH /users/:userId', () => {
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
@@ -54,10 +51,16 @@ describe('PATCH /users/:userId', () => {
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should return 200', async () => {
-      const result = await agent
+      (getUserById as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixtureId,
+      }));
+
+      (updateUserProfile as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixtureId,
+      }));
+
+      result = await agent
         .patch(`/api/users/${userFixtureId}`)
         .send({
           name: 'User test',
@@ -66,7 +69,68 @@ describe('PATCH /users/:userId', () => {
           userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call getUserById with the correct params', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f000c32');
+    });
+
+    it('should call updateUserProfile with the correct params', () => {
+      expect(updateUserProfile).toHaveBeenCalledWith({
+        email: 'usertest@email.com',
+        name: 'User test',
+        password: undefined,
+        surname: 'Surname',
+        userId: '61616e10fc13ae4d5f000c32',
+      });
+    });
+
+    it('should return 200', () => {
       expect(result.status).toEqual(200);
+    });
+  });
+
+  describe('when the user to update does not exist', () => {
+    let result: Response;
+    const email = 'admin.test@email.com';
+    const userId = '61616e10fc13ae4d5f333c32';
+    let token = '';
+
+    beforeAll(async () => {
+      token = testUserToken({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_users'],
+      });
+
+      (verify as jest.Mock).mockImplementation(() => ({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_users'],
+        expiresIn: 7000000000,
+      }));
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+
+      result = await agent
+        .patch(`/api/users/61616e10fc13ae4d5f333c32`)
+        .send({
+          name: 'User test',
+          surname: 'Surname',
+          email: 'usertest@email.com',
+          userId: '61616e10fc13ae4d5f333c32',
+        })
+        .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call getUserById with the correct params', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    });
+
+    it('should return 404', () => {
+      expect(result.status).toEqual(404);
     });
   });
 
@@ -117,7 +181,12 @@ describe('PATCH /users/:userId', () => {
 });
 
 describe('PATCH /users/:userId/disable', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
@@ -137,16 +206,69 @@ describe('PATCH /users/:userId/disable', () => {
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should return 200', async () => {
-      const result = await agent
+      (getUserById as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixtureId,
+      }));
+
+      result = await agent
         .patch(`/api/users/${userFixtureId}/disable`)
         .send({
           userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call softDeleteUser with the correctParams', () => {
+      expect(softDeleteUser).toBeCalledWith('61616e10fc13ae4d5f000c32');
+    });
+
+    it('should return 200', () => {
       expect(result.status).toEqual(200);
+    });
+  });
+
+  describe('when the user to soft-delete does not exist', () => {
+    let result: Response;
+    const email = 'admin.test@email.com';
+    const userId = 'userId';
+    let token = '';
+
+    beforeAll(async () => {
+      token = testUserToken({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_users'],
+      });
+
+      (verify as jest.Mock).mockImplementation(() => ({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_users'],
+        expiresIn: 7000000000,
+      }));
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+
+      result = await agent
+        .patch('/api/users/61616e10fc13ae4d5f333c32/disable')
+        .send({
+          userId: userFixtureId,
+        })
+        .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call softDeleteUser with the correctParams', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    });
+
+    it('should return 404', () => {
+      expect(result.status).toEqual(404);
+      expect(result.body).toEqual({
+        message: 'User not found.',
+      });
     });
   });
 
@@ -183,7 +305,12 @@ describe('PATCH /users/:userId/disable', () => {
 });
 
 describe('PATCH /users/:userId/grant/admin', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
@@ -203,16 +330,66 @@ describe('PATCH /users/:userId/grant/admin', () => {
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should return 200', async () => {
-      const result = await agent
+      (getUserById as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixtureId,
+      }));
+
+      result = await agent
         .patch(`/api/users/${userFixtureId}/grant/admin`)
         .send({
           userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call grantAdminRole with the correct params', () => {
+      expect(grantAdminRole).toHaveBeenCalledWith('61616e10fc13ae4d5f000c32');
+    });
+
+    it('should return 200', () => {
       expect(result.status).toEqual(200);
+    });
+  });
+
+  describe('when the user to grant admin does not exist', () => {
+    let result: Response;
+    const email = 'admin.test@email.com';
+    const userId = 'userId';
+    let token = '';
+
+    beforeAll(async () => {
+      token = testUserToken({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_admins'],
+      });
+
+      (verify as jest.Mock).mockImplementation(() => ({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_admins'],
+        expiresIn: 7000000000,
+      }));
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+
+      result = await agent
+        .patch('/api/users/61616e10fc13ae4d5f333c32/grant/admin')
+        .send({
+          userId: userFixtureId,
+        })
+        .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call grantAdminRole with the correct params', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    });
+
+    it('should return 404', () => {
+      expect(result.status).toEqual(404);
     });
   });
 
@@ -249,7 +426,12 @@ describe('PATCH /users/:userId/grant/admin', () => {
 });
 
 describe('PATCH /users/:userId/revoke/admin', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('when token is valid and user has permissions', () => {
+    let result: Response;
     const email = 'admin.test@email.com';
     const userId = 'userId';
     let token = '';
@@ -269,16 +451,69 @@ describe('PATCH /users/:userId/revoke/admin', () => {
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
-    });
 
-    it('should return 200', async () => {
-      const result = await agent
+      (getUserById as jest.Mock).mockImplementationOnce(() => ({
+        _id: userFixtureId,
+      }));
+
+      result = await agent
         .patch(`/api/users/${userFixtureId}/revoke/admin`)
         .send({
           userId: userFixtureId,
         })
         .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call revokeAdminRole with the correct params', () => {
+      expect(revokeAdminRole).toBeCalledWith('61616e10fc13ae4d5f000c32');
+    });
+
+    it('should return 200', () => {
       expect(result.status).toEqual(200);
+    });
+  });
+
+  describe('when the user to revoke admin does not exist', () => {
+    let result: Response;
+    const email = 'admin.test@email.com';
+    const userId = 'userId';
+    let token = '';
+
+    beforeAll(async () => {
+      token = testUserToken({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_admins'],
+      });
+
+      (verify as jest.Mock).mockImplementation(() => ({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['update:all_admins'],
+        expiresIn: 7000000000,
+      }));
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+
+      result = await agent
+        .patch('/api/users/61616e10fc13ae4d5f333c32/revoke/admin')
+        .send({
+          userId: userFixtureId,
+        })
+        .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call getUserById with the correct params', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    });
+
+    it('should return 404', async () => {
+      expect(result.status).toEqual(404);
+      expect(result.body).toEqual({
+        message: 'User not found.'
+      });
     });
   });
 

@@ -2,21 +2,21 @@ import { sign } from 'jsonwebtoken';
 import { db } from '../jest-helpers';
 import { RoleModel, User } from '../models';
 import { userFixture } from '../routes/users/fixtures/users';
-import { rolesFixture } from '../routes/users/fixtures/roles';
+import { userRole } from '../routes/users/fixtures/roles';
 import { AuthToken, createAccessToken } from './Auth.service';
 
 jest.mock('jsonwebtoken');
 
 beforeAll(async () => {
   db.connect();
-  await RoleModel.deleteOne({ _id: rolesFixture[0]._id });
-  await RoleModel.deleteOne({ _id: rolesFixture[1]._id });
-  await RoleModel.insertMany(rolesFixture);
+  await RoleModel.deleteOne({ name: userRole.name });
+  await RoleModel.create(userRole);
 });
 
 afterAll(async () => {
+  await RoleModel.deleteOne({ name: userRole.name });
   await db.disconnect();
-  
+
   jest.clearAllMocks();
 });
 
@@ -28,7 +28,7 @@ describe('createAccessToken', () => {
 
   beforeAll(async () => {
     (sign as jest.Mock).mockReturnValue(token);
-    
+
     dateNowSpy = jest.spyOn(Date, 'now').mockImplementation(() => now);
     accessToken = await createAccessToken(userFixture as unknown as User);
   });
