@@ -47,6 +47,7 @@ export async function createUser(user: Partial<User>): Promise<Partial<User>> {
     _id: newUser._id,
     name,
     surname,
+    email,
     createdAt: now,
     updatedAt: now,
     roles: [userRole._id]
@@ -100,12 +101,12 @@ export async function updateUserProfile(
 
   return {
     _id,
-    name: updatedUser.name,
-    surname: updatedUser.surname,
-    email: updatedUser.email,
-    createdAt: updatedUser.createdAt,
+    name: updatedUser?.name,
+    surname: updatedUser?.surname,
+    email: updatedUser?.email,
+    createdAt: updatedUser?.createdAt,
     updatedAt,
-    roles: updatedUser.roles,
+    roles: updatedUser?.roles,
   };
 }
 
@@ -128,8 +129,8 @@ export async function softDeleteUser(userId: string): Promise<Partial<User>> {
     name: deletedUser?.name,
     surname: deletedUser?.surname,
     createdAt: deletedUser?.createdAt,
-    updatedAt: now,
-    deletedAt: now,
+    updatedAt: deletedUser?.updatedAt,
+    deletedAt: deletedUser?.deletedAt,
     roles: deletedUser?.roles,
   };
 }
@@ -169,6 +170,7 @@ export async function grantAdminRole(userId: string): Promise<Partial<User>> {
     _id,
     name: updatedUser?.name,
     surname: updatedUser?.surname,
+    email: updatedUser?.email,
     createdAt: updatedUser?.createdAt,
     updatedAt,
     roles: updatedUser?.roles,

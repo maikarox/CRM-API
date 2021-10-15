@@ -20,6 +20,7 @@ let agent: request.SuperAgentTest;
 
 beforeAll(async () => {
   db.connect();
+  await UserModel.deleteOne({email: userFixture.email});
   await UserModel.create(userFixture);
   const agentServer = startServer(server, agent);
   server = agentServer.server;
@@ -27,6 +28,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await UserModel.deleteOne({email: userFixture.email});
   await db.disconnect();
   await closeServer(server);
 });
@@ -52,10 +54,6 @@ describe('DELETE /users/:userId', () => {
         permissions: ['delete:all_users'],
         expiresIn: 7000000000,
       }));
-    });
-
-    afterAll(async () => {
-      await UserModel.deleteOne({email: userFixture.email});
     });
 
     it('should hard delete the user from the db', async () => {
