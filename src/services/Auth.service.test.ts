@@ -45,8 +45,8 @@ describe('createAccessToken', () => {
         roles: ['User'],
         userId: userFixture._id,
       },
-      expect.any(String),
-      { expiresIn: '24h' },
+      expect.any(Buffer),
+      { expiresIn: '24h', algorithm: 'HS512' },
     );
   });
 

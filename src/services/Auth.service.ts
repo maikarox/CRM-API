@@ -24,8 +24,8 @@ export async function createAccessToken(user: User): Promise<AuthToken> {
         return [...prev, ...current.permissions];
       }, []),
     },
-    SECRET,
-    { expiresIn: '24h' },
+    Buffer.from(String(SECRET), 'base64'),
+    { expiresIn: '24h', algorithm: 'HS512' },
   );
 
   return {
