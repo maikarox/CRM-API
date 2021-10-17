@@ -2,17 +2,12 @@ import { Server } from 'http';
 import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
-import {
-  closeServer,
-  startServer,
-  testUserToken,
-} from '../../jest-helpers';
-import { getUserById, removeUser } from '../../services/User.service';
-
-import { userFixture, userFixtureId } from './fixtures/users';
+import { closeServer, startServer, testUserToken } from '../../jest-helpers';
+import { createCustomerProfile } from '../../services/Customer.service';
+import { customerFixture } from './fixtures/customer';
 
 jest.mock('jsonwebtoken');
-jest.mock('../../services/User.service');
+jest.mock('../../services/Customer.service');
 
 let server: Server;
 let agent: SuperAgentTest;
@@ -27,10 +22,10 @@ afterAll(async () => {
   await closeServer(server);
 });
 
-describe('DELETE /users/:userId', () => {
+describe('POST /customers', () => {
   describe('when token is valid and user has permissions', () => {
     let result: Response;
-    const email = 'admin.test@email.com';
+    const email = 'user.test@email.com';
     const userId = 'userId';
     let token = '';
 
@@ -38,76 +33,66 @@ describe('DELETE /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        roles: ['User'],
+        permissions: ['create:all_customers'],
       });
-
-      (getUserById as jest.Mock).mockImplementationOnce(() => ({
-        _id: userFixture._id,
-      }));
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        roles: ['User'],
+        permissions: ['create:all_customers'],
         expiresIn: 7000000000,
       }));
 
       result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .post(`/api/customers`)
+        .send(customerFixture)
         .set('Authorization', `Bearer ${token}`);
     });
 
     it('should call removeUser', () => {
-      expect(removeUser).toHaveBeenCalledWith('61616e10fc13ae4d5f000c32');
+      expect(createCustomerProfile).toBeCalledTimes(1);
     });
 
-    it('should return 204', () => {
-      expect(result.status).toEqual(204);
+    it('should return 201', () => {
+      expect(result.status).toEqual(201);
     });
   });
 
-  describe('when the user to delete does not exist', () => {
+  describe('when required body params are not passed', () => {
     let result: Response;
-    const email = 'admin.test@email.com';
-    const userId = '61616e10fc13ae4d5f333c32';
+    const email = 'user.test@email.com';
+    const userId = 'userId';
     let token = '';
 
     beforeAll(async () => {
-      jest.clearAllMocks();
-
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        roles: ['User'],
+        permissions: ['create:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        roles: ['User'],
+        permissions: ['create:all_customers'],
         expiresIn: 7000000000,
       }));
 
-      (getUserById as jest.Mock).mockImplementationOnce(() => null);
-
       result = await agent
-        .delete(`/api/users/61616e10fc13ae4d5f333c32`)
+        .post(`/api/customers`)
+        .send({ ...customerFixture, surname: undefined })
         .set('Authorization', `Bearer ${token}`);
     });
 
-    it('should call getUserById with the correct params', () => {
-      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
-    });
-
-    it('should return 404', () => {
-      expect(result.status).toEqual(404);
+    it('should return 400', () => {
+      expect(result.status).toEqual(400);
       expect(result.body).toEqual({
-        message: 'User not found.'
-      })
+        message: 'Name and surname are required.',
+      });
     });
   });
 
@@ -135,7 +120,7 @@ describe('DELETE /users/:userId', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .get(`/api/customers`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -149,7 +134,7 @@ describe('DELETE /users/:userId', () => {
 
     it('should return 401', async () => {
       const result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .get(`/api/customers`)
         .set('Authorization', `Bearer invalid-token`);
 
       expect(result.status).toEqual(401);

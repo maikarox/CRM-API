@@ -44,7 +44,7 @@ export const updateCustomer: RequestHandler = async (req, res) => {
   const { name, surname, profileImage, actionUser } = req.body;
   const { customerId } = req.params;
 
-  if (!name || !surname || !profileImage) {
+  if (!name && !surname && !profileImage) {
     return res.status(400).json({
       message:
         'Nothing to update, send at least one: name, surname or profileImage.',

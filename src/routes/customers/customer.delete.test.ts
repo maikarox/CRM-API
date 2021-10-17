@@ -2,17 +2,16 @@ import { Server } from 'http';
 import { SuperAgentTest, Response } from 'supertest';
 import { verify } from 'jsonwebtoken';
 
+import { closeServer, startServer, testUserToken } from '../../jest-helpers';
 import {
-  closeServer,
-  startServer,
-  testUserToken,
-} from '../../jest-helpers';
-import { getUserById, removeUser } from '../../services/User.service';
+  getCustomerById,
+  removeCustomer,
+} from '../../services/Customer.service';
 
-import { userFixture, userFixtureId } from './fixtures/users';
+import { customerFixtureId } from './fixtures/customer';
 
 jest.mock('jsonwebtoken');
-jest.mock('../../services/User.service');
+jest.mock('../../services/Customer.service');
 
 let server: Server;
 let agent: SuperAgentTest;
@@ -27,7 +26,7 @@ afterAll(async () => {
   await closeServer(server);
 });
 
-describe('DELETE /users/:userId', () => {
+describe('DELETE /customers/:userId', () => {
   describe('when token is valid and user has permissions', () => {
     let result: Response;
     const email = 'admin.test@email.com';
@@ -39,28 +38,28 @@ describe('DELETE /users/:userId', () => {
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        permissions: ['delete:all_customers'],
       });
-
-      (getUserById as jest.Mock).mockImplementationOnce(() => ({
-        _id: userFixture._id,
-      }));
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        permissions: ['delete:all_customers'],
         expiresIn: 7000000000,
       }));
 
+      (getCustomerById as jest.Mock).mockImplementationOnce(() => ({
+        _id: customerFixtureId,
+      }));
+
       result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .delete(`/api/customers/${customerFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
     });
 
-    it('should call removeUser', () => {
-      expect(removeUser).toHaveBeenCalledWith('61616e10fc13ae4d5f000c32');
+    it('should call removeCustomer', () => {
+      expect(removeCustomer).toHaveBeenCalledWith('61616e10fc13ae5c5f001c43');
     });
 
     it('should return 204', () => {
@@ -68,46 +67,44 @@ describe('DELETE /users/:userId', () => {
     });
   });
 
-  describe('when the user to delete does not exist', () => {
+  describe('when the customer to delete does not exist', () => {
     let result: Response;
     const email = 'admin.test@email.com';
-    const userId = '61616e10fc13ae4d5f333c32';
+    const userId = 'userId';
     let token = '';
 
     beforeAll(async () => {
-      jest.clearAllMocks();
-
       token = testUserToken({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        permissions: ['delete:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
         roles: ['Admin'],
-        permissions: ['delete:all_users'],
+        permissions: ['delete:all_customers'],
         expiresIn: 7000000000,
       }));
 
-      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+      (getCustomerById as jest.Mock).mockImplementationOnce(() => null);
 
       result = await agent
-        .delete(`/api/users/61616e10fc13ae4d5f333c32`)
+        .delete(`/api/customers/61616e10fc13ae5c5f001c45`)
         .set('Authorization', `Bearer ${token}`);
     });
 
-    it('should call getUserById with the correct params', () => {
-      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    it('should call getCustomerById with the correct params', () => {
+      expect(getCustomerById).toHaveBeenCalledWith('61616e10fc13ae5c5f001c45');
     });
 
     it('should return 404', () => {
       expect(result.status).toEqual(404);
       expect(result.body).toEqual({
-        message: 'User not found.'
-      })
+          message: 'Customer does not exist.'
+      });
     });
   });
 
@@ -135,7 +132,7 @@ describe('DELETE /users/:userId', () => {
 
     it('should return 403', async () => {
       const result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .delete(`/api/customers/${customerFixtureId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(result.status).toEqual(403);
@@ -149,7 +146,7 @@ describe('DELETE /users/:userId', () => {
 
     it('should return 401', async () => {
       const result = await agent
-        .delete(`/api/users/${userFixtureId}`)
+        .delete(`/api/customers/${customerFixtureId}`)
         .set('Authorization', `Bearer invalid-token`);
 
       expect(result.status).toEqual(401);
