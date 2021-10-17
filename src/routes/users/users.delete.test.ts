@@ -63,8 +63,51 @@ describe('DELETE /users/:userId', () => {
       expect(removeUser).toHaveBeenCalledWith('61616e10fc13ae4d5f000c32');
     });
 
-    it('should return 200', () => {
+    it('should return 204', () => {
       expect(result.status).toEqual(204);
+    });
+  });
+
+  describe('when the user to delete does not exist', () => {
+    let result: Response;
+    const email = 'admin.test@email.com';
+    const userId = '61616e10fc13ae4d5f333c32';
+    let token = '';
+
+    beforeAll(async () => {
+      jest.clearAllMocks();
+
+      token = testUserToken({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['delete:all_users'],
+      });
+
+      (verify as jest.Mock).mockImplementation(() => ({
+        userId,
+        email,
+        roles: ['Admin'],
+        permissions: ['delete:all_users'],
+        expiresIn: 7000000000,
+      }));
+
+      (getUserById as jest.Mock).mockImplementationOnce(() => null);
+
+      result = await agent
+        .delete(`/api/users/61616e10fc13ae4d5f333c32`)
+        .set('Authorization', `Bearer ${token}`);
+    });
+
+    it('should call getUserById with the correct params', () => {
+      expect(getUserById).toBeCalledWith('61616e10fc13ae4d5f333c32');
+    });
+
+    it('should return 404', () => {
+      expect(result.status).toEqual(404);
+      expect(result.body).toEqual({
+        message: 'User not found.'
+      })
     });
   });
 
