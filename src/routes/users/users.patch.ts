@@ -7,6 +7,7 @@ import {
   grantUserAdminRole,
   revokeUserAdminRole,
 } from '../../controllers/User.controller';
+import { Permission } from '../../config/permissions';
 import { isAuthorized } from '../../middleware/authorized';
 import { checkScopes } from '../../middleware/checkScopes';
 
@@ -14,28 +15,28 @@ export default (app: Router): void => {
   app.patch(
     '/:userId',
     isAuthorized,
-    checkScopes(['update:all_users']),
+    checkScopes([Permission.UpdateUser]),
     asyncHandler(updateUser),
   );
 
   app.patch(
     '/:userId/disable',
     isAuthorized,
-    checkScopes(['update:all_users']),
+    checkScopes([Permission.UpdateUser]),
     asyncHandler(disableUser),
   );
 
   app.patch(
     '/:userId/grant/admin',
     isAuthorized,
-    checkScopes(['update:all_admins']),
+    checkScopes([Permission.UpdateAdmin]),
     asyncHandler(grantUserAdminRole),
   );
 
   app.patch(
     '/:userId/revoke/admin',
     isAuthorized,
-    checkScopes(['update:all_admins']),
+    checkScopes([Permission.UpdateAdmin]),
     asyncHandler(revokeUserAdminRole),
   );
 };
