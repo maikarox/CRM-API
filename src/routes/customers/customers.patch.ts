@@ -9,14 +9,14 @@ export default (app: Router): void => {
   app.patch(
     '/:customerId',
     isAuthorized,
-    checkScopes(['update:all_customers'], 'User'),
+    checkScopes(['update:all_customers']),
     asyncHandler(updateCustomer),
   );
 
   app.patch(
     '/:customerId/disable',
     isAuthorized,
-    checkScopes(['update:all_customers'], 'User'),
+    checkScopes(['update:all_customers']),
     asyncHandler(disableCustomer),
   );
 };

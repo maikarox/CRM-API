@@ -9,7 +9,7 @@ export default (app: Router): void => {
   app.get(
     '/',
     isAuthorized,
-    checkScopes(['read:all_customers'], 'User'),
+    checkScopes(['read:all_customers']),
     asyncHandler(getCustomers),
   );
 };

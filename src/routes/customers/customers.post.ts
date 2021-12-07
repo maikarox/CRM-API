@@ -9,7 +9,7 @@ export default (app: Router): void => {
   app.post(
     '/',
     isAuthorized,
-    checkScopes(['create:all_customers'], 'User'),
+    checkScopes(['create:all_customers']),
     asyncHandler(createCustomer),
   );
 };
