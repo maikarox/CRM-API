@@ -1,7 +1,7 @@
 import { Server } from 'http';
 import { SuperAgentTest, Response } from 'supertest';
 
-import { closeServer, db, startServer } from '../../jest-helpers';
+import { closeServer, startServer } from '../../jest-helpers';
 import { getUser } from '../../services/User.service';
 import { createAccessToken } from '../../services/Auth.service';
 import { userFixture } from '../users/fixtures/users';
@@ -16,15 +16,12 @@ let server: Server;
 let agent: SuperAgentTest;
 
 beforeAll(() => {
-  db.connect();
-
   const agentServer = startServer(server, agent);
   server = agentServer.server;
   agent = agentServer.agent;
 });
 
 afterAll(async () => {
-  await db.disconnect();
   await closeServer(server);
 });
 

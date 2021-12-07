@@ -3,13 +3,10 @@ import { RequestHandler } from 'express';
 import { verifyToken } from '../helpers/decodeToken';
 
 export const checkScopes =
-  (requiredPermissions: string[], requiredRole?: string): RequestHandler =>
+  (requiredPermissions: string[]): RequestHandler =>
   (req, res, next) => {
     const { authorization } = req.headers;
-    const { roles = '', permissions = [], userId } = verifyToken(authorization);
-
-    const isAdmin = roles.includes('Admin');
-    const hasRole = isAdmin || roles.includes(requiredRole);
+    const { permissions = [], userId } = verifyToken(authorization);
 
     let hasPermissions = false;
     for (const permission of requiredPermissions) {
@@ -19,7 +16,7 @@ export const checkScopes =
       }
     }
 
-    if (!hasRole || !hasPermissions) {
+    if (!hasPermissions) {
       return res
         .status(403)
         .json({ message: 'Forbidden: You do not have enough permissions.' });
