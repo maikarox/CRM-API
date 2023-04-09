@@ -2,15 +2,23 @@
 import { Schema, Types } from 'mongoose';
 
 import { base64ToBinary, binaryToBase64 } from '../helpers/encoding';
-import { Customer, CustomerModel } from '../models';
+import {
+  createCustomer,
+  Customer,
+  findCustomerAndUpdate,
+  findCustomerById,
+  getAllCustomers as getCustomers,
+  hasrdDeleteCustomer as hardDeleteCustomer,
+  softDeleteCustomer as setCustomerAsDeleted
+} from '../models';
 
-export async function getCustomerById(customerId: string): Promise<Partial<Customer>>{
+export async function getCustomerById(customerId: string): Promise<Customer>{
   const _id = customerId as unknown as Schema.Types.ObjectId;
-  return await CustomerModel.findById({_id});
+  return await findCustomerById(_id);
 }
 
 export async function getAllCustomers(): Promise<Partial<Customer>[]> {
-  const customers = await CustomerModel.find({}).sort({ updatedAt: -1 });
+  const customers = await getCustomers({ updatedAt: -1 });
 
   return customers.map(customer => {
     let image: string = null;
@@ -28,7 +36,7 @@ export async function getAllCustomers(): Promise<Partial<Customer>[]> {
 
     if (profileImage) {
       try {
-        image = binaryToBase64(profileImage as Buffer);
+        image = binaryToBase64(Buffer.isBuffer(profileImage) ? profileImage: null);
       } catch {}
     }
 
@@ -72,7 +80,7 @@ export async function createCustomerProfile(
     updatedBy: actionUserId,
   };
 
-  const customerRecord = await CustomerModel.create(newCustomer);
+  const customerRecord = await createCustomer(newCustomer);
 
   return {
     ...newCustomer,
@@ -110,23 +118,21 @@ export async function updateCustomerProfile(
   const actionUserId = new Types.ObjectId(actionUser);
   const _id = customerId as unknown as Schema.Types.ObjectId;
 
-  const updatedUser = await CustomerModel.findOneAndUpdate(
-    { _id },
-    {
+  const updatedUser = await findCustomerAndUpdate(
+    { 
+      _id, 
       ...customerData,
-      updatedAt: new Date(),
       updatedBy: actionUserId,
-      profileImage: image,
+      profileImage: image 
     },
-    { new: true },
-  ).lean();
+  );
 
   const { profileImage: storedImage } = updatedUser;
 
   let storedProfileImage: string;
   if (!profileImage && storedImage) {
     try {
-      storedProfileImage = binaryToBase64(storedImage as Buffer);
+      storedProfileImage = binaryToBase64(Buffer.from(Buffer.isBuffer(storedImage) ? storedImage : null));
     } catch (err) {
       throw new Error('Error converting binary to base64.');
     }
@@ -141,23 +147,9 @@ export async function updateCustomerProfile(
 export async function softDeleteCustomer(
   customerId: string,
 ): Promise<Partial<Customer>> {
-  const _id = customerId as unknown as Schema.Types.ObjectId;
-  const now = new Date();
-  const deletedCustomer = await CustomerModel.findOneAndUpdate(
-    { _id },
-    {
-      $set: {
-        deletedAt: now,
-        updatedAt: now,
-      },
-    },
-    { new: true },
-  ).lean();
-
-  return deletedCustomer;
+  return await setCustomerAsDeleted(customerId);
 }
 
 export async function removeCustomer(customerId: string): Promise<void> {
-  const _id = customerId as unknown as Schema.Types.ObjectId;
-  await CustomerModel.findByIdAndDelete({ _id });
+  await hardDeleteCustomer(customerId);
 }
