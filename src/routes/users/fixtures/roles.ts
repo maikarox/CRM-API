@@ -1,4 +1,5 @@
 import { Schema, Types } from 'mongoose';
+import { Role } from '../../../constants/roles.enum';
 
 export const userRoleId = '616191c1fc13ae60130001f7';
 export const roleId1 = new Types.ObjectId(
@@ -13,7 +14,7 @@ export const roleId3 = new Types.ObjectId(
 
 export const userRole = {
   _id: roleId3,
-  name: 'User',
+  name: Role.USER,
   permissions: ['permission4', 'permission5', 'permission6'],
 };
 

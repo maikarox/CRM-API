@@ -10,6 +10,7 @@ import {
 import { createUser } from '../../services/User.service';
 
 import { userFixture } from './fixtures/users';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/User.service');
@@ -39,14 +40,14 @@ describe('POST /users', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['create:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['create:all_users'],
         expiresIn: 7000000000,
       }));
@@ -87,14 +88,14 @@ describe('POST /users', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));

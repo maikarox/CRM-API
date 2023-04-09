@@ -10,6 +10,7 @@ import {
 } from '../../services/Customer.service';
 
 import { customerFixtureId } from './fixtures/customer';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/Customer.service');
@@ -39,14 +40,14 @@ describe('UPDATE /customers/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -81,14 +82,14 @@ describe('UPDATE /customers/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -121,14 +122,14 @@ describe('UPDATE /customers/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));
@@ -169,14 +170,14 @@ describe('UPDATE /customers/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['update:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -223,14 +224,14 @@ describe('UPDATE /customers/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -270,14 +271,14 @@ describe('UPDATE /customers/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -313,14 +314,14 @@ describe('UPDATE /customers/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));

@@ -6,6 +6,7 @@ import { closeServer, startServer, testUserToken } from '../../jest-helpers';
 import {
   getAllCustomers,
 } from '../../services/Customer.service';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/Customer.service');
@@ -34,14 +35,14 @@ describe('GET /customers', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['read:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['read:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -69,14 +70,14 @@ describe('GET /customers', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));

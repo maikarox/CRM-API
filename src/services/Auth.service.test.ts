@@ -4,6 +4,7 @@ import { RoleModel, User } from '../models';
 import { userFixture } from '../routes/users/fixtures/users';
 import { userRole } from '../routes/users/fixtures/roles';
 import { AuthToken, createAccessToken } from './Auth.service';
+import { Role } from '../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 
@@ -42,7 +43,7 @@ describe('createAccessToken', () => {
       {
         email: userFixture.email,
         permissions: ['permission4', 'permission5', 'permission6'],
-        roles: ['User'],
+        roles: [Role.USER],
         userId: userFixture._id,
       },
       expect.any(Buffer),
