@@ -1,4 +1,4 @@
-import { Document, Schema, model } from 'mongoose';
+import { Document, Schema, model, RootQuerySelector } from 'mongoose';
 
 export interface Role extends Document {
   _id: Schema.Types.ObjectId;
@@ -12,3 +12,11 @@ const roleSchema = new Schema<Role>({
 }, { collection: 'roles' });
 
 export const RoleModel = model<Role>('Role', roleSchema);
+
+export async function findRoleByName(name: string): Promise<Role>{
+  return await RoleModel.findOne({ name }).lean();
+}
+
+export async function findRoles(args: RootQuerySelector<Role>): Promise<Role[]>{
+  return await RoleModel.find(args);
+}

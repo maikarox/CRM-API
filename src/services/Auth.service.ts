@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 import { configEnv } from '../config/env';
-import { User, RoleModel } from '../models';
+import { User, findRoles } from '../models';
 
 export interface AuthToken {
   accessToken: string;
@@ -11,7 +11,7 @@ export interface AuthToken {
 export async function createAccessToken(user: User): Promise<AuthToken> {
   const { SECRET } = configEnv;
 
-  const roles = await RoleModel.find({ _id: { $in: [...user.roles] } });
+  const roles = await findRoles({ _id: { $in: [...user.roles] } });
 
   const expiresIn = new Date(Date.now() + 24 * 60 * 60 * 1000);
 

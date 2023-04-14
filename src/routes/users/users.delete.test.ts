@@ -10,6 +10,7 @@ import {
 import { getUserById, removeUser } from '../../services/User.service';
 
 import { userFixture, userFixtureId } from './fixtures/users';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/User.service');
@@ -38,7 +39,7 @@ describe('DELETE /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['delete:all_users'],
       });
 
@@ -49,7 +50,7 @@ describe('DELETE /users/:userId', () => {
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['delete:all_users'],
         expiresIn: 7000000000,
       }));
@@ -80,14 +81,14 @@ describe('DELETE /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['delete:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['delete:all_users'],
         expiresIn: 7000000000,
       }));
@@ -120,14 +121,14 @@ describe('DELETE /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));

@@ -12,6 +12,7 @@ import {
 } from '../../services/User.service';
 
 import { userFixtureId } from './fixtures/users';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/User.service');
@@ -40,14 +41,14 @@ describe('PATCH /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
@@ -100,14 +101,14 @@ describe('PATCH /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
@@ -143,14 +144,14 @@ describe('PATCH /users/:userId', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));
@@ -195,14 +196,14 @@ describe('PATCH /users/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
@@ -238,14 +239,14 @@ describe('PATCH /users/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_users'],
         expiresIn: 7000000000,
       }));
@@ -281,14 +282,14 @@ describe('PATCH /users/:userId/disable', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));
@@ -319,14 +320,14 @@ describe('PATCH /users/:userId/grant/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
@@ -362,14 +363,14 @@ describe('PATCH /users/:userId/grant/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
@@ -402,14 +403,14 @@ describe('PATCH /users/:userId/grant/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));
@@ -440,14 +441,14 @@ describe('PATCH /users/:userId/revoke/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
@@ -483,14 +484,14 @@ describe('PATCH /users/:userId/revoke/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['Admin'],
+        roles: [Role.ADMIN],
         permissions: ['update:all_admins'],
         expiresIn: 7000000000,
       }));
@@ -526,14 +527,14 @@ describe('PATCH /users/:userId/revoke/admin', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));

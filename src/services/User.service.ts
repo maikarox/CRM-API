@@ -1,45 +1,55 @@
 import { createHash } from 'crypto';
 import { Schema } from 'mongoose';
+import { Role } from '../constants/roles.enum';
 
-import { RoleModel, User, UserModel } from '../models';
+import { 
+  addUserRole,
+  createUser as addUser,
+  findRoleByName,
+  findUser,
+  findUserAndUpdate,
+  findUserById,
+  getAllUsers as getUsers,
+  hardDeleteUser,
+  removeUserRole,
+  softDeleteUser as setUserAsDeleted,
+  User,
+} from '../models';
 
 export async function getUserByEmail(email: string): Promise<User> {
-  const user = await UserModel.findOne({ email }, { password: 0 });
+  const user = await findUser({email});
   return user;
 }
 
 export async function getUserById(userId: string): Promise<User> {
   const _id = userId as unknown as Schema.Types.ObjectId;
-  const user = await UserModel.findOne({ _id }, { password: 0 });
+  const user = await findUserById(_id);
   return user;
 }
 
 export async function getUser(email: string, password: string): Promise<User> {
   const shaPass = createHash('sha256').update(password).digest('hex');
 
-  return await UserModel.findOne(
+  return await findUser(
     {
       email,
       password: shaPass,
     },
-    { password: 0 },
-  ).lean();
+  );
 }
 
 export async function getAllUsers(): Promise<User[]> {
-  return await UserModel.find({}, { password: 0 })
-    .sort({ updatedAt: -1 })
-    .lean();
+  return await getUsers();
 }
 
 export async function createUser(user: Partial<User>): Promise<Partial<User>> {
   const { name, surname, email, password } = user;
   const shaPass = createHash('sha256').update(password).digest('hex');
 
-  const userRole = await RoleModel.findOne({ name: 'User' }).lean();
+  const userRole = await findRoleByName(Role.USER);
 
   const now = new Date();
-  const newUser = await UserModel.create({
+  const newUser = await addUser({
     name,
     surname,
     email,
@@ -76,10 +86,10 @@ export async function updateUserProfile(
   }
 
   if (email) {
-    const userWithEmail = await UserModel.findOne({
+    const userWithEmail = await findUser({
       _id: { $ne: _id },
       email,
-    }).lean();
+    });
 
     if (userWithEmail) {
       throw new Error(`The email ${email} already exists.`);
@@ -93,16 +103,8 @@ export async function updateUserProfile(
     userData.password = shaPass;
   }
 
-  const updatedAt = new Date();
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { _id },
-    {
-      $set: {
-        ...userData,
-        updatedAt,
-      },
-    },
-    { new: true },
+  const updatedUser = await findUserAndUpdate(
+    { _id, ...userData},
   );
 
   return {
@@ -111,27 +113,16 @@ export async function updateUserProfile(
     surname: updatedUser.surname,
     email: updatedUser.email,
     createdAt: updatedUser.createdAt,
-    updatedAt,
+    updatedAt: updatedUser.updatedAt,
     roles: updatedUser.roles,
   };
 }
 
 export async function softDeleteUser(userId: string): Promise<Partial<User>> {
-  const _id = userId as unknown as Schema.Types.ObjectId;
-  const now = new Date();
-  const deletedUser = await UserModel.findOneAndUpdate(
-    { _id },
-    {
-      $set: {
-        deletedAt: now,
-        updatedAt: now,
-      },
-    },
-    { new: true },
-  );
+  const deletedUser = await setUserAsDeleted(userId);
 
   return {
-    _id,
+    _id: deletedUser._id,
     name: deletedUser.name,
     surname: deletedUser.surname,
     createdAt: deletedUser.createdAt,
@@ -142,34 +133,26 @@ export async function softDeleteUser(userId: string): Promise<Partial<User>> {
 }
 
 export async function removeUser(userId: string): Promise<void> {
-  const _id = userId as unknown as Schema.Types.ObjectId;
-  await UserModel.findOneAndDelete({ _id });
+  await hardDeleteUser(userId);
 }
 
 export async function grantAdminRole(userId: string): Promise<Partial<User>> {
   const _id = userId as unknown as Schema.Types.ObjectId;
 
-  const adminRole = await RoleModel.findOne({ name: 'Admin' }).lean();
+  const adminRole = await await findRoleByName(Role.ADMIN);
 
-  const userFoundWithRole = await UserModel.findOne({
+  const userFoundWithRole = await findUser({
     _id,
     roles: { $in: [adminRole._id] },
-  }).lean();
+  });
 
   if (userFoundWithRole) {
     throw new Error('User is already an admin.');
   }
 
   const updatedAt = new Date();
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { _id },
-    {
-      $push: { roles: adminRole._id },
-      $set: {
-        updatedAt,
-      },
-    },
-    { new: true },
+  const updatedUser = await addUserRole(
+    { id: _id, role: adminRole._id },
   );
 
   return {
@@ -186,18 +169,11 @@ export async function grantAdminRole(userId: string): Promise<Partial<User>> {
 export async function revokeAdminRole(userId: string): Promise<Partial<User>> {
   const _id = userId as unknown as Schema.Types.ObjectId;
 
-  const adminRole = await RoleModel.findOne({ name: 'Admin' }).lean();
+  const adminRole = await findRoleByName(Role.ADMIN);
 
   const updatedAt = new Date();
-  const updatedUser = await UserModel.findOneAndUpdate(
-    { _id },
-    {
-      $pull: { roles: adminRole._id },
-      $set: {
-        updatedAt: new Date(),
-      },
-    },
-    { new: true },
+  const updatedUser = await removeUserRole(
+    { id: _id, role: adminRole._id },
   );
 
   return {

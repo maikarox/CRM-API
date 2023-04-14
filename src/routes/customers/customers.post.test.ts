@@ -5,6 +5,7 @@ import { verify } from 'jsonwebtoken';
 import { closeServer, startServer, testUserToken } from '../../jest-helpers';
 import { createCustomerProfile } from '../../services/Customer.service';
 import { customerFixture } from './fixtures/customer';
+import { Role } from '../../constants/roles.enum';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/Customer.service');
@@ -33,14 +34,14 @@ describe('POST /customers', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['create:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['create:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -70,14 +71,14 @@ describe('POST /customers', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['create:all_customers'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['create:all_customers'],
         expiresIn: 7000000000,
       }));
@@ -105,14 +106,14 @@ describe('POST /customers', () => {
       token = testUserToken({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
       });
 
       (verify as jest.Mock).mockImplementation(() => ({
         userId,
         email,
-        roles: ['User'],
+        roles: [Role.USER],
         permissions: ['other:permission'],
         expiresIn: 7000000000,
       }));
