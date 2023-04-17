@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { Permission } from '../../constants/permissions.enum';
+import { Permission } from '../../constants/permissions';
 import { updateCustomer, disableCustomer } from '../../controllers/Customer.controller';
 import { isAuthorized } from '../../middleware/authorized';
 import { checkScopes } from '../../middleware/checkScopes';

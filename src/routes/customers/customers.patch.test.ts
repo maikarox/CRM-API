@@ -10,7 +10,7 @@ import {
 } from '../../services/Customer.service';
 
 import { customerFixtureId } from './fixtures/customer';
-import { Role } from '../../constants/roles.enum';
+import { Role } from '../../constants/roles';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/Customer.service');

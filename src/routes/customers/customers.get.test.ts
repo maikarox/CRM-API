@@ -6,7 +6,7 @@ import { closeServer, startServer, testUserToken } from '../../jest-helpers';
 import {
   getAllCustomers,
 } from '../../services/Customer.service';
-import { Role } from '../../constants/roles.enum';
+import { Role } from '../../constants/roles';
 
 jest.mock('jsonwebtoken');
 jest.mock('../../services/Customer.service');
