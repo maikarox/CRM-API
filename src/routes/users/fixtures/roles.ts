@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { Role } from '../../../constants/roles.enum';
+import { Role } from '../../../constants/roles';
 
 export const userRoleId = '616191c1fc13ae60130001f7';
 export const roleId1 = new Types.ObjectId(

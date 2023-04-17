@@ -1,2 +1,2 @@
-export * from './permissions.enum';
-export * from './roles.enum';
+export * from './permissions';
+export * from './roles';

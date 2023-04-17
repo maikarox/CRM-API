@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { Schema } from 'mongoose';
-import { Role } from '../constants/roles.enum';
+import { Role } from '../constants/roles';
 
 import { 
   addUserRole,

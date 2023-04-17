@@ -7,7 +7,7 @@ import {
   grantUserAdminRole,
   revokeUserAdminRole,
 } from '../../controllers/User.controller';
-import { Permission } from '../../constants/permissions.enum';
+import { Permission } from '../../constants/permissions';
 import { isAuthorized } from '../../middleware/authorized';
 import { checkScopes } from '../../middleware/checkScopes';
 

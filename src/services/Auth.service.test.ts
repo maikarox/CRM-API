@@ -4,7 +4,7 @@ import { RoleModel, User } from '../models';
 import { userFixture } from '../routes/users/fixtures/users';
 import { userRole } from '../routes/users/fixtures/roles';
 import { AuthToken, createAccessToken } from './Auth.service';
-import { Role } from '../constants/roles.enum';
+import { Role } from '../constants/roles';
 
 jest.mock('jsonwebtoken');
 
